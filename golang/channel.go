@@ -57,6 +57,9 @@ type ChannelOptions struct {
 
 	// Trace reporter to use for this channel.
 	TraceReporter TraceReporter
+
+	// CreateRelay is for a relay.
+	CreateRelay bool
 }
 
 // ChannelState is the state of a channel.
@@ -97,6 +100,8 @@ type Channel struct {
 	handlers          *handlerMap
 	peers             *PeerList
 	subChannels       *subChannelMap
+	serviceHosts      *ServiceHosts
+	useRelay          bool
 
 	// mutable contains all the members of Channel which are mutable.
 	mutable struct {
@@ -143,6 +148,8 @@ func NewChannel(serviceName string, opts *ChannelOptions) (*Channel, error) {
 		traceReporter:     traceReporter,
 		handlers:          &handlerMap{},
 		subChannels:       &subChannelMap{},
+		serviceHosts:      NewServiceHosts(),
+		useRelay:          opts.CreateRelay,
 	}
 	ch.mutable.peerInfo = LocalPeerInfo{
 		PeerInfo: PeerInfo{
@@ -155,6 +162,11 @@ func NewChannel(serviceName string, opts *ChannelOptions) (*Channel, error) {
 	ch.peers = newPeerList(ch)
 	ch.createCommonStats()
 	return ch, nil
+}
+
+// ServiceHosts is the hostPorts for each service.
+func (ch *Channel) ServiceHosts() *ServiceHosts {
+	return ch.serviceHosts
 }
 
 // Serve serves incoming requests using the provided listener.
