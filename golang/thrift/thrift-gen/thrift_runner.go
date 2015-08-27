@@ -23,6 +23,7 @@ package main
 import (
 	"bytes"
 	"compress/gzip"
+	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -31,6 +32,8 @@ import (
 	"reflect"
 	"unsafe"
 )
+
+var flagThriftBinary = flag.String("thriftBinary", "thrift", "Command to use for the Apache Thrift binary")
 
 // embeddedThriftGZip is the contents of a gzipped binary that can be used instead of the
 // thrift binary on the system. This is used to tie thrift-gen to a specific version of
@@ -61,7 +64,7 @@ func readOnlyByteSlice(s *string) []byte {
 func execThrift(args ...string) error {
 	// If we do not have an embedded Thrift binary for this OS, use the system binary.
 	if len(embeddedThriftGZip) == 0 {
-		return execCmd("thrift", args...)
+		return execCmd(*flagThriftBinary, args...)
 	}
 
 	// Create a temporary file to write out the uncompressed binary.
