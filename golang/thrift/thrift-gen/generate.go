@@ -24,17 +24,9 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 )
-
-func execCmd(name string, args ...string) error {
-	cmd := exec.Command(name, args...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return cmd.Run()
-}
 
 func deleteRemote(dir string) error {
 	files, err := ioutil.ReadDir(dir)
@@ -76,7 +68,7 @@ func runThrift(inFile string, thriftImport string) (string, error) {
 	}
 
 	// Generate the Apache Thrift generated code.
-	if err := execCmd("thrift", "-r", "--gen", "go:thrift_import="+thriftImport, "-o", dir, inFile); err != nil {
+	if err := execThrift("-r", "--gen", "go:thrift_import="+thriftImport, "-o", dir, inFile); err != nil {
 		return "", fmt.Errorf("Thrift compile failed: %v", err)
 	}
 
